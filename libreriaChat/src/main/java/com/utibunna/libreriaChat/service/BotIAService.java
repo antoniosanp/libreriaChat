@@ -3,10 +3,11 @@ package com.utibunna.libreriaChat.service;
 import com.utibunna.libreriaChat.model.Mensaje;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
 
-
+@Service
 public class BotIAService {
 
 

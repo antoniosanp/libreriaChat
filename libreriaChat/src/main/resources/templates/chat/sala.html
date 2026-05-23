@@ -1,264 +1,72 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat LibroTech</title>
+    <title>ChatTech - Sala Inteligente</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <style>
-        :root {
-            color-scheme: light;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f3f6fb;
-            color: #1f2937;
-        }
-
-        .layout {
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 24px 16px;
-        }
-
-        .header {
-            margin-bottom: 16px;
-        }
-
-        .header h1 {
-            margin: 0 0 4px;
-            font-size: 28px;
-        }
-
-        .chat-shell {
-            display: grid;
-            grid-template-rows: 1fr auto;
-            height: calc(100vh - 110px);
-            min-height: 520px;
-            background: #ffffff;
-            border: 1px solid #dbe2ea;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .messages {
-            padding: 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            background: #f8fafc;
-        }
-
-        .message {
-            max-width: 78%;
-            padding: 12px 14px;
-            border-radius: 8px;
-            background: #e5eefb;
-            align-self: flex-start;
-        }
-
-        .message.mine {
-            background: #d1fae5;
-            align-self: flex-end;
-        }
-
-        .message.bot {
-            background: #ede9fe;
-        }
-
-        .meta {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 6px;
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        .content {
-            white-space: pre-wrap;
-            line-height: 1.45;
-        }
-
-        .composer {
-            border-top: 1px solid #dbe2ea;
-            padding: 16px;
-            background: #ffffff;
-        }
-
-        .composer-form {
-            display: grid;
-            grid-template-columns: 180px 1fr auto;
-            gap: 12px;
-        }
-
-        input, textarea, button {
-            font: inherit;
-        }
-
-        input, textarea {
-            width: 100%;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 10px 12px;
-            background: #ffffff;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 48px;
-            max-height: 120px;
-        }
-
-        button {
-            border: 0;
-            border-radius: 8px;
-            padding: 0 18px;
-            background: #2563eb;
-            color: #ffffff;
-            cursor: pointer;
-            min-height: 48px;
-        }
-
-        .status {
-            margin-top: 10px;
-            font-size: 13px;
-            color: #64748b;
-        }
-
-        @media (max-width: 720px) {
-            .chat-shell {
-                height: calc(100vh - 80px);
-            }
-
-            .composer-form {
-                grid-template-columns: 1fr;
-            }
-
-            .message {
-                max-width: 100%;
-            }
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .chat-box { border: 1px solid #ccc; height: 400px; overflow-y: scroll; padding: 15px; background-color: #f9f9f9;}
+        .msg { margin-bottom: 10px; padding: 10px; border-radius: 8px; max-width: 80%;}
+        .msg-usuario { background-color: #d1ecf1; margin-left: auto; text-align: right;}
+        .msg-bot { background-color: #d4edda; margin-right: auto;}
+        .remitente { font-weight: bold; font-size: 0.9em; display: block; margin-bottom: 4px;}
+        .input-area { margin-top: 15px; display: flex; gap: 10px;}
+        input[type="text"] { padding: 10px; flex-grow: 1; border: 1px solid #ccc; border-radius: 4px;}
+        button { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;}
     </style>
 </head>
 <body>
-<div class="layout">
-    <div class="header">
-        <h1>Chat LibroTech</h1>
-    </div>
 
-    <div class="chat-shell">
-        <div id="messages" class="messages">
-            <div th:each="mensaje : ${mensajes}"
-                 class="message"
-                 th:classappend="${mensaje.remitente == 'LibroBot IA'} ? ' bot' : ''">
-                <div class="meta">
-                    <strong th:text="${mensaje.remitente}">Remitente</strong>
-                    <span th:text="${#temporals.format(mensaje.fechaEnvio, 'yyyy-MM-dd HH:mm:ss')}">Fecha</span>
-                </div>
-                <div class="content" th:text="${mensaje.contenido}">Contenido</div>
-            </div>
-        </div>
+<h1>Sala de Chat Asistida por IA</h1>
 
-        <div class="composer">
-            <form id="chatForm" class="composer-form">
-                <input id="remitente" name="remitente" type="text" placeholder="Tu nombre" value="Usuario">
-                <textarea id="contenido" name="contenido" placeholder="Escribe un mensaje"></textarea>
-                <button type="submit">Enviar</button>
-            </form>
-            <div id="status" class="status">Desconectado</div>
-        </div>
+<!-- Historial renderizado por Thymeleaf (MongoDB) -->
+<div id="chat-box" class="chat-box">
+    <div th:each="msg : ${historial}"
+         th:classappend="${msg.remitente == 'LibroBot IA'} ? 'msg msg-bot' : 'msg msg-usuario'">
+        <span class="remitente" th:text="${msg.remitente}">Usuario</span>
+        <span th:text="${msg.contenido}">Texto del mensaje</span>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+<div class="input-area">
+    <input type="text" id="remitente" placeholder="Tu Nombre..." style="flex-grow: 0; width: 150px;" required>
+    <input type="text" id="mensaje" placeholder="Escribe un mensaje a la IA o a otros usuarios..." required>
+    <button onclick="enviarMensaje()">Enviar</button>
+</div>
+
 <script>
-    const messagesContainer = document.getElementById('messages');
-    const form = document.getElementById('chatForm');
-    const remitenteInput = document.getElementById('remitente');
-    const contenidoInput = document.getElementById('contenido');
-    const statusLabel = document.getElementById('status');
+    var stompClient = null;
 
-    const stompClient = new StompJs.Client({
-        webSocketFactory: () => new SockJS('/chat-websocket'),
-        reconnectDelay: 5000
-    });
-
-    stompClient.onConnect = () => {
-        statusLabel.textContent = 'Conectado';
-        stompClient.subscribe('/tema/mensajes', (message) => {
-            appendMessage(JSON.parse(message.body));
+    function conectar() {
+        var socket = new SockJS('/chat-websocket');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            stompClient.subscribe('/tema/mensajes', function (respuesta) {
+                mostrarMensaje(JSON.parse(respuesta.body));
+            });
         });
-    };
-
-    stompClient.onStompError = (frame) => {
-        statusLabel.textContent = 'Error de conexion: ' + frame.headers['message'];
-    };
-
-    stompClient.onWebSocketClose = () => {
-        statusLabel.textContent = 'Desconectado';
-    };
-
-    function appendMessage(mensaje) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'message';
-
-        if (mensaje.remitente === 'LibroBot IA') {
-            wrapper.classList.add('bot');
-        }
-        if (mensaje.remitente === remitenteInput.value.trim()) {
-            wrapper.classList.add('mine');
-        }
-
-        const fecha = mensaje.fechaEnvio ? mensaje.fechaEnvio.replace('T', ' ') : '';
-        wrapper.innerHTML = `
-            <div class="meta">
-                <strong>${escapeHtml(mensaje.remitente || 'Sin nombre')}</strong>
-                <span>${escapeHtml(fecha)}</span>
-            </div>
-            <div class="content">${escapeHtml(mensaje.contenido || '')}</div>
-        `;
-
-        messagesContainer.appendChild(wrapper);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    function escapeHtml(value) {
-        return value
-            .replaceAll('&', '&amp;')
-            .replaceAll('<', '&lt;')
-            .replaceAll('>', '&gt;')
-            .replaceAll('"', '&quot;')
-            .replaceAll("'", '&#39;');
+    function enviarMensaje() {
+        var remitente = document.getElementById('remitente').value;
+        var contenido = document.getElementById('mensaje').value;
+        if(contenido.trim() === '') return;
+        stompClient.send("/app/enviar", {}, JSON.stringify({'remitente': remitente, 'contenido': contenido}));
+        document.getElementById('mensaje').value = '';
     }
 
-    form.addEventListener('submit', (event) => {
-        event.preventDefault();
+    function mostrarMensaje(msg) {
+        var chatBox = document.getElementById('chat-box');
+        var nuevoMensaje = document.createElement('div');
+        var claseTipo = (msg.remitente === 'LibroBot IA') ? 'msg msg-bot' : 'msg msg-usuario';
+        nuevoMensaje.className = claseTipo;
+        nuevoMensaje.innerHTML = "<span class='remitente'>" + msg.remitente + "</span> <span>" + msg.contenido + "</span>";
+        chatBox.appendChild(nuevoMensaje);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
 
-        const remitente = remitenteInput.value.trim();
-        const contenido = contenidoInput.value.trim();
-
-        if (!remitente || !contenido || !stompClient.connected) {
-            return;
-        }
-
-        stompClient.publish({
-            destination: '/app/enviar',
-            body: JSON.stringify({ remitente, contenido })
-        });
-
-        contenidoInput.value = '';
-        contenidoInput.focus();
-    });
-
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    stompClient.activate();
+    window.onload = conectar;
 </script>
 </body>
 </html>

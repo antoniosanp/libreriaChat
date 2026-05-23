@@ -3,9 +3,10 @@ package com.utibunna.libreriaChat.service;
 import com.utibunna.libreriaChat.model.Mensaje;
 import com.utibunna.libreriaChat.repository.MensajeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 @RequiredArgsConstructor
 public class MensajeService {
     private  final MensajeRepository mensajeRepository;
