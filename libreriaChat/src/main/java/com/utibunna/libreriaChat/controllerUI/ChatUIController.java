@@ -23,7 +23,7 @@ public class ChatUIController {
     public String showChat(Model model){
         List<Mensaje> historial = mensajeService.getLastMensajes();
 
-        model.addAttribute(historial);
+        model.addAttribute("historial", historial);
 
         return "chat/sala";
     }
