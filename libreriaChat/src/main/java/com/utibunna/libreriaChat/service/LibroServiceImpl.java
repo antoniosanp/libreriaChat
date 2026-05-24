@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class LibroServiceImpl implements LibroService {
@@ -50,6 +52,12 @@ public class LibroServiceImpl implements LibroService {
     public Page<Libro> obtenerPorAutor(String autor, int page) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         return libroRepository.findByAutorContainingIgnoreCase(autor, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Libro> obtenerCatalogo() {
+        return libroRepository.findAll();
     }
 
     @Override

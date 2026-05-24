@@ -5,6 +5,8 @@ import com.utibunna.libreriaChat.libroDTO.LibroPatchDTO;
 import com.utibunna.libreriaChat.model.Libro;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 public interface LibroService {
 
     Libro crearLibro(LibroDTO libroDTO);
@@ -14,6 +16,8 @@ public interface LibroService {
     Libro obtenerPorId(Long id);
 
     Page<Libro> obtenerPorAutor(String autor, int page);
+
+    List<Libro> obtenerCatalogo();
 
     Libro actualizarLibro(Long id, LibroDTO libroDTO);
 
