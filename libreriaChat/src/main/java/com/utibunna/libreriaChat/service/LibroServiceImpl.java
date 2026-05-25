@@ -2,7 +2,11 @@ package com.utibunna.libreriaChat.service;
 
 import com.utibunna.libreriaChat.libroDTO.LibroDTO;
 import com.utibunna.libreriaChat.libroDTO.LibroPatchDTO;
+import com.utibunna.libreriaChat.model.Editorial;
+import com.utibunna.libreriaChat.model.Genero;
 import com.utibunna.libreriaChat.model.Libro;
+import com.utibunna.libreriaChat.repository.EditorialRepository;
+import com.utibunna.libreriaChat.repository.GeneroRepository;
 import com.utibunna.libreriaChat.repository.LibroRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -13,7 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -22,9 +28,17 @@ public class LibroServiceImpl implements LibroService {
     private static final int PAGE_SIZE = 5;
 
     private final LibroRepository libroRepository;
+    private final EditorialRepository editorialRepository;
+    private final GeneroRepository generoRepository;
 
-    public LibroServiceImpl(LibroRepository libroRepository) {
+    public LibroServiceImpl(
+            LibroRepository libroRepository,
+            EditorialRepository editorialRepository,
+            GeneroRepository generoRepository
+    ) {
         this.libroRepository = libroRepository;
+        this.editorialRepository = editorialRepository;
+        this.generoRepository = generoRepository;
     }
 
     @Override
@@ -57,7 +71,7 @@ public class LibroServiceImpl implements LibroService {
     @Override
     @Transactional(readOnly = true)
     public List<Libro> obtenerCatalogo() {
-        return libroRepository.findAll();
+        return libroRepository.findByDisponibleTrue();
     }
 
     @Override
@@ -80,27 +94,52 @@ public class LibroServiceImpl implements LibroService {
         if (libroPatchDTO.getIsbn() != null) {
             libro.setIsbn(libroPatchDTO.getIsbn().trim());
         }
-        if (libroPatchDTO.getAnioPublicacion() != null) {
-            libro.setAnioPublicacion(libroPatchDTO.getAnioPublicacion());
+        if (libroPatchDTO.getFechaPublicacion() != null) {
+            libro.setFechaPublicacion(libroPatchDTO.getFechaPublicacion());
+        }
+        if (libroPatchDTO.getPrecio() != null) {
+            libro.setPrecio(libroPatchDTO.getPrecio());
+        }
+        if (libroPatchDTO.getEditorialId() != null) {
+            libro.setEditorial(buscarEditorial(libroPatchDTO.getEditorialId()));
+        }
+        if (libroPatchDTO.getGeneroIds() != null) {
+            libro.setGeneros(buscarGeneros(libroPatchDTO.getGeneroIds()));
         }
 
         return guardar(libro);
     }
 
     @Override
-    public void eliminarLibro(Long id) {
+    public void descatalogarLibro(Long id) {
         Libro libro = buscarLibro(id);
-        libroRepository.delete(libro);
+        libro.softDelete();
+        libroRepository.save(libro);
     }
 
     @Override
-    public void eliminarTodo(){
-        libroRepository.deleteAll();
+    public void eliminarTodo() {
+        List<Libro> libros = libroRepository.findAll();
+        libros.forEach(Libro::softDelete);
+        libroRepository.saveAll(libros);
     }
 
     private Libro buscarLibro(Long id) {
         return libroRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Libro no encontrado"));
+    }
+
+    private Editorial buscarEditorial(Long editorialId) {
+        return editorialRepository.findById(editorialId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Editorial no encontrada"));
+    }
+
+    private Set<Genero> buscarGeneros(Set<Long> generoIds) {
+        List<Genero> generos = generoRepository.findAllById(generoIds);
+        if (generos.size() != generoIds.size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Uno o mas generos no existen");
+        }
+        return new HashSet<>(generos);
     }
 
     private Libro guardar(Libro libro) {
@@ -115,6 +154,9 @@ public class LibroServiceImpl implements LibroService {
         libro.setTitulo(libroDTO.getTitulo().trim());
         libro.setAutor(libroDTO.getAutor().trim());
         libro.setIsbn(libroDTO.getIsbn().trim());
-        libro.setAnioPublicacion(libroDTO.getAnioPublicacion());
+        libro.setFechaPublicacion(libroDTO.getFechaPublicacion());
+        libro.setPrecio(libroDTO.getPrecio());
+        libro.setEditorial(buscarEditorial(libroDTO.getEditorialId()));
+        libro.setGeneros(buscarGeneros(libroDTO.getGeneroIds()));
     }
 }

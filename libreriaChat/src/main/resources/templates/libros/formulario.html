@@ -37,9 +37,36 @@
     </label>
 
     <label>
-        <span>Anio de publicacion</span>
-        <input type="number" th:field="*{anioPublicacion}">
-        <span class="error" th:if="${#fields.hasErrors('anioPublicacion')}" th:errors="*{anioPublicacion}"></span>
+        <span>Fecha de publicacion</span>
+        <input type="date" th:field="*{fechaPublicacion}">
+        <span class="error" th:if="${#fields.hasErrors('fechaPublicacion')}" th:errors="*{fechaPublicacion}"></span>
+    </label>
+
+    <label>
+        <span>Precio</span>
+        <input type="number" min="0.01" step="0.01" th:field="*{precio}">
+        <span class="error" th:if="${#fields.hasErrors('precio')}" th:errors="*{precio}"></span>
+    </label>
+
+    <label>
+        <span>Editorial</span>
+        <select th:field="*{editorialId}">
+            <option value="">Seleccione una editorial</option>
+            <option th:each="editorial : ${editoriales}"
+                    th:value="${editorial.id}"
+                    th:text="${editorial.nombre}"></option>
+        </select>
+        <span class="error" th:if="${#fields.hasErrors('editorialId')}" th:errors="*{editorialId}"></span>
+    </label>
+
+    <label>
+        <span>Generos</span>
+        <select th:field="*{generoIds}" multiple size="6">
+            <option th:each="genero : ${generos}"
+                    th:value="${genero.id}"
+                    th:text="${genero.nombre}"></option>
+        </select>
+        <span class="error" th:if="${#fields.hasErrors('generoIds')}" th:errors="*{generoIds}"></span>
     </label>
 
     <div class="acciones">

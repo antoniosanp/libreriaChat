@@ -67,9 +67,11 @@ public class LibroController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void eliminar(@PathVariable Long id) {
-        libroService.eliminarLibro(id);
+        libroService.descatalogarLibro(id);
     }
 
     @DeleteMapping()
-    public void eliminarTodo(){libroService.eliminarTodo();}
+    public void eliminarTodo() {
+        libroService.eliminarTodo();
+    }
 }

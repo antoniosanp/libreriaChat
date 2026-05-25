@@ -1,6 +1,8 @@
 package com.utibunna.libreriaChat.controllerUI;
 
 import com.utibunna.libreriaChat.libroDTO.LibroDTO;
+import com.utibunna.libreriaChat.repository.EditorialRepository;
+import com.utibunna.libreriaChat.repository.GeneroRepository;
 import com.utibunna.libreriaChat.model.Libro;
 import com.utibunna.libreriaChat.service.LibroService;
 import jakarta.validation.Valid;
@@ -23,9 +25,17 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class LibroUIController {
 
     private final LibroService libroService;
+    private final EditorialRepository editorialRepository;
+    private final GeneroRepository generoRepository;
 
-    public LibroUIController(LibroService libroService) {
+    public LibroUIController(
+            LibroService libroService,
+            EditorialRepository editorialRepository,
+            GeneroRepository generoRepository
+    ) {
         this.libroService = libroService;
+        this.editorialRepository = editorialRepository;
+        this.generoRepository = generoRepository;
     }
 
     @GetMapping
@@ -42,20 +52,28 @@ public class LibroUIController {
     @GetMapping("/nuevo")
     public String mostrarFormulario(Model model) {
         model.addAttribute("libroDTO", new LibroDTO());
+        cargarOpcionesFormulario(model);
         return "libros/formulario";
     }
 
     @PostMapping
     public String crearLibro(@Valid @ModelAttribute("libroDTO") LibroDTO libroDTO,
                              BindingResult bindingResult,
+                             Model model,
                              RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
+            cargarOpcionesFormulario(model);
             return "libros/formulario";
         }
 
         Libro libro = libroService.crearLibro(libroDTO);
         redirectAttributes.addFlashAttribute("mensajeExito", "Libro creado con id " + libro.getId());
         return "redirect:/ui/libros";
+    }
+
+    private void cargarOpcionesFormulario(Model model) {
+        model.addAttribute("editoriales", editorialRepository.findAll());
+        model.addAttribute("generos", generoRepository.findAll());
     }
 
     private List<Integer> obtenerPaginas(int totalPages) {

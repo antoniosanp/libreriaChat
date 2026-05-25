@@ -23,7 +23,7 @@ public interface LibroService {
 
     Libro actualizarParcialLibro(Long id, LibroPatchDTO libroPatchDTO);
 
-    void eliminarLibro(Long id);
+    void descatalogarLibro(Long id);
 
     void eliminarTodo();
 }
