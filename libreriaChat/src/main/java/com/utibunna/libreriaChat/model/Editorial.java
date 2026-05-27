@@ -1,5 +1,6 @@
 package com.utibunna.libreriaChat.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -27,7 +28,9 @@ public class Editorial {
 
     private Integer fundadoEn;
 
+
     // Lado inverso de la relación: una Editorial tiene muchos Libros
+    @JsonIgnore
     @OneToMany(mappedBy = "editorial")
     private List<Libro> libros = new ArrayList<>();
 

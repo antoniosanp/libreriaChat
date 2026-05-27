@@ -58,4 +58,8 @@ public interface LibroRepository extends JpaRepository<Libro, Long> {
 """) LibroResumenDTO findResumenById(long id);
 
 
+    @Override
+    @EntityGraph(attributePaths = "editorial")
+    List<Libro> findAll();
+
 }

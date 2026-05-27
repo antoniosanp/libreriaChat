@@ -1,5 +1,6 @@
 package com.utibunna.libreriaChat.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -20,6 +21,7 @@ public class Genero {
     private String descripcion;
 
     // Lado inverso de Many-to-Many
+    @JsonIgnore
     @ManyToMany(mappedBy = "generos")
     private Set<Libro> libros = new HashSet<>();
 
