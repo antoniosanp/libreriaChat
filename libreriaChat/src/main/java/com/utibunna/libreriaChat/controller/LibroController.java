@@ -2,12 +2,15 @@ package com.utibunna.libreriaChat.controller;
 
 import com.utibunna.libreriaChat.libroDTO.LibroDTO;
 import com.utibunna.libreriaChat.libroDTO.LibroPatchDTO;
+import com.utibunna.libreriaChat.libroDTO.LibroResumenDTO;
 import com.utibunna.libreriaChat.model.Libro;
 import com.utibunna.libreriaChat.service.LibroService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +23,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Validated
 @RestController
@@ -74,4 +80,30 @@ public class LibroController {
     public void eliminarTodo() {
         libroService.eliminarTodo();
     }
+
+
+    @GetMapping("/slice")
+    public ResponseEntity<Map<String, Object>> getCatalogo(
+        @RequestParam(defaultValue = "0") int page)
+    {
+        Slice<LibroResumenDTO> slice = libroService.getCatalogo(page);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("Libros", slice.getContent());
+        response.put("currentPage",slice.getNumber());
+        response.put("pageSize",slice.getSize());
+        response.put("hasNext",slice.hasNext());
+        response.put("hasPreviues",slice.hasPrevious());
+
+        return ResponseEntity.ok(response);
+
+
+    }
+
+    @GetMapping("/dto/{id}")
+    public LibroResumenDTO obtenerDTOPorId(@PathVariable Long id) {
+        return libroService.getResumenById(id);
+    }
+
+
 }

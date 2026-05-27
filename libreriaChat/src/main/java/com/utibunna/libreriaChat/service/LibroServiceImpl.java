@@ -2,6 +2,7 @@ package com.utibunna.libreriaChat.service;
 
 import com.utibunna.libreriaChat.libroDTO.LibroDTO;
 import com.utibunna.libreriaChat.libroDTO.LibroPatchDTO;
+import com.utibunna.libreriaChat.libroDTO.LibroResumenDTO;
 import com.utibunna.libreriaChat.model.Editorial;
 import com.utibunna.libreriaChat.model.Genero;
 import com.utibunna.libreriaChat.model.Libro;
@@ -12,6 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +27,7 @@ import java.util.Set;
 @Transactional
 public class LibroServiceImpl implements LibroService {
 
-    private static final int PAGE_SIZE = 5;
+    private static final int PAGE_SIZE = 10;
 
     private final LibroRepository libroRepository;
     private final EditorialRepository editorialRepository;
@@ -124,6 +126,8 @@ public class LibroServiceImpl implements LibroService {
         libroRepository.saveAll(libros);
     }
 
+
+
     private Libro buscarLibro(Long id) {
         return libroRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Libro no encontrado"));
@@ -158,5 +162,24 @@ public class LibroServiceImpl implements LibroService {
         libro.setPrecio(libroDTO.getPrecio());
         libro.setEditorial(buscarEditorial(libroDTO.getEditorialId()));
         libro.setGeneros(buscarGeneros(libroDTO.getGeneroIds()));
+    }
+
+
+    //=========slice========
+
+    @Override
+    public Slice<LibroResumenDTO> getCatalogo(int page) {
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        return libroRepository.findAllLibroResumenes(pageable);
+    }
+
+    public Libro getLibroWithRelations(Long id) {
+        return libroRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Libro no encontrado: " + id));
+    }
+
+    @Override
+    public LibroResumenDTO getResumenById(Long id) {
+        return libroRepository.findResumenById(id);
     }
 }
