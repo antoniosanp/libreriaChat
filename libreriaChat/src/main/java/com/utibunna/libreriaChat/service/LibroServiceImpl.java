@@ -1,8 +1,7 @@
 package com.utibunna.libreriaChat.service;
 
-import com.utibunna.libreriaChat.libroDTO.LibroDTO;
-import com.utibunna.libreriaChat.libroDTO.LibroPatchDTO;
-import com.utibunna.libreriaChat.libroDTO.LibroResumenDTO;
+import com.utibunna.libreriaChat.libroDTO.*;
+import com.utibunna.libreriaChat.mapper.LibroMapper;
 import com.utibunna.libreriaChat.model.Editorial;
 import com.utibunna.libreriaChat.model.Genero;
 import com.utibunna.libreriaChat.model.Libro;
@@ -22,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -32,22 +32,38 @@ public class LibroServiceImpl implements LibroService {
     private final LibroRepository libroRepository;
     private final EditorialRepository editorialRepository;
     private final GeneroRepository generoRepository;
+    private final LibroMapper libroMapper;
 
     public LibroServiceImpl(
             LibroRepository libroRepository,
             EditorialRepository editorialRepository,
-            GeneroRepository generoRepository
+            GeneroRepository generoRepository,
+            LibroMapper libroMapper
     ) {
         this.libroRepository = libroRepository;
         this.editorialRepository = editorialRepository;
         this.generoRepository = generoRepository;
+        this.libroMapper = libroMapper;
     }
 
     @Override
-    public Libro crearLibro(LibroDTO libroDTO) {
-        Libro libro = new Libro();
-        mapDtoToEntity(libroDTO, libro);
-        return guardar(libro);
+    public LibroResponseDTO crearLibro(LibroCreateDTO dto) {
+
+        Libro libro = libroMapper.toEntity(dto);
+
+
+        Editorial editorial = editorialRepository.findById(dto.editorialId())
+                .orElseThrow(()-> new RuntimeException("editorial no existe"));
+        libro.setEditorial(editorial);
+
+        Set<Genero> generos = generoRepository.findAllById(dto.generosId())
+                .stream().collect(Collectors.toSet());
+        libro.setGeneros(generos);
+
+        Libro libroGuardado = libroRepository.save(libro);
+
+
+        return libroMapper.toResponseDTO(libroGuardado);
     }
 
     @Override
@@ -59,8 +75,14 @@ public class LibroServiceImpl implements LibroService {
 
     @Override
     @Transactional(readOnly = true)
-    public Libro obtenerPorId(Long id) {
-        return buscarLibro(id);
+    public LibroResponseDTO obtenerPorId(Long id) {
+
+        Libro l = libroRepository.findById(id).orElseThrow(
+                ()->new RuntimeException("no hay libros con esa id")
+        );
+
+        return libroMapper.toResponseDTO(l);
+
     }
 
     @Override

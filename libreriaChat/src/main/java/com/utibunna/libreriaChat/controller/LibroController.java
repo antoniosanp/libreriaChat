@@ -1,8 +1,6 @@
 package com.utibunna.libreriaChat.controller;
 
-import com.utibunna.libreriaChat.libroDTO.LibroDTO;
-import com.utibunna.libreriaChat.libroDTO.LibroPatchDTO;
-import com.utibunna.libreriaChat.libroDTO.LibroResumenDTO;
+import com.utibunna.libreriaChat.libroDTO.*;
 import com.utibunna.libreriaChat.model.Libro;
 import com.utibunna.libreriaChat.service.LibroService;
 import jakarta.validation.Valid;
@@ -40,9 +38,10 @@ public class LibroController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Libro crear(@Valid @RequestBody LibroDTO libroDTO) {
-        return libroService.crearLibro(libroDTO);
+
+    public ResponseEntity<LibroResponseDTO> crear(@Valid @RequestBody LibroCreateDTO libroDTO) {
+    LibroResponseDTO nuevoLibro = libroService.crearLibro(libroDTO);
+    return ResponseEntity.status(HttpStatus.CREATED).body(nuevoLibro);
     }
 
     @GetMapping
@@ -51,8 +50,8 @@ public class LibroController {
     }
 
     @GetMapping("/{id}")
-    public Libro obtenerPorId(@PathVariable Long id) {
-        return libroService.obtenerPorId(id);
+    public ResponseEntity<LibroResponseDTO> obtenerPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(libroService.obtenerPorId(id));
     }
 
     @GetMapping("/autor/{autor}")

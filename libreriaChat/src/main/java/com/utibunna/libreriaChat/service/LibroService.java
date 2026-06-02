@@ -1,8 +1,6 @@
 package com.utibunna.libreriaChat.service;
 
-import com.utibunna.libreriaChat.libroDTO.LibroDTO;
-import com.utibunna.libreriaChat.libroDTO.LibroPatchDTO;
-import com.utibunna.libreriaChat.libroDTO.LibroResumenDTO;
+import com.utibunna.libreriaChat.libroDTO.*;
 import com.utibunna.libreriaChat.model.Libro;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
@@ -12,11 +10,11 @@ import java.util.List;
 public interface LibroService {
 
 
-    Libro crearLibro(LibroDTO libroDTO);
+    LibroResponseDTO crearLibro(LibroCreateDTO dto);
 
     Page<Libro> obtenerTodos(int page);
 
-    Libro obtenerPorId(Long id);
+    LibroResponseDTO obtenerPorId(Long id);
 
     Page<Libro> obtenerPorAutor(String autor, int page);
 
