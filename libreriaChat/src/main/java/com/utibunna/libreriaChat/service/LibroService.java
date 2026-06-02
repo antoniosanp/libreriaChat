@@ -39,5 +39,7 @@ public interface LibroService {
 
     LibroResumenDTO getResumenById(Long id);
 
+    List<Libro> getAllEntity();
+
 
 }

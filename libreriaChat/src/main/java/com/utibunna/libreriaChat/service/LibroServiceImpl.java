@@ -182,4 +182,9 @@ public class LibroServiceImpl implements LibroService {
     public LibroResumenDTO getResumenById(Long id) {
         return libroRepository.findResumenById(id);
     }
+
+    @Override
+    public List<Libro> getAllEntity() {
+        return libroRepository.findAll();
+    }
 }

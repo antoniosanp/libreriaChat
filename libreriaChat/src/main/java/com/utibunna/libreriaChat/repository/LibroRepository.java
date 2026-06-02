@@ -59,7 +59,7 @@ public interface LibroRepository extends JpaRepository<Libro, Long> {
 
 
     @Override
-    @EntityGraph(attributePaths = "editorial")
+    @EntityGraph(attributePaths = {"editorial", "generos"})
     List<Libro> findAll();
 
 }
