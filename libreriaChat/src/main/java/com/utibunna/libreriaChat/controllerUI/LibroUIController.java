@@ -1,5 +1,6 @@
 package com.utibunna.libreriaChat.controllerUI;
 
+import com.utibunna.libreriaChat.libroDTO.LibroCreateDTO;
 import com.utibunna.libreriaChat.libroDTO.LibroDTO;
 import com.utibunna.libreriaChat.repository.EditorialRepository;
 import com.utibunna.libreriaChat.repository.GeneroRepository;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@Controller
+//@Controller
 @RequestMapping("/ui/libros")
 public class LibroUIController {
 
@@ -56,8 +57,8 @@ public class LibroUIController {
         return "libros/formulario";
     }
 
-    @PostMapping
-    public String crearLibro(@Valid @ModelAttribute("libroDTO") LibroDTO libroDTO,
+    //@PostMapping
+    public String crearLibro(@Valid @ModelAttribute("libroDTO") LibroCreateDTO libroDTO,
                              BindingResult bindingResult,
                              Model model,
                              RedirectAttributes redirectAttributes) {
@@ -66,8 +67,8 @@ public class LibroUIController {
             return "libros/formulario";
         }
 
-        Libro libro = libroService.crearLibro(libroDTO);
-        redirectAttributes.addFlashAttribute("mensajeExito", "Libro creado con id " + libro.getId());
+        //Libro libro = libroService.crearLibro(libroDTO);
+        //redirectAttributes.addFlashAttribute("mensajeExito", "Libro creado con id " + libro.getId());
         return "redirect:/ui/libros";
     }
 
