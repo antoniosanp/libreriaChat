@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Validated
+
 @RestController
 @RequestMapping("/libros")
 public class LibroController {

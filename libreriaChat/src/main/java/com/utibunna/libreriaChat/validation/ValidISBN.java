@@ -16,5 +16,5 @@ public @interface ValidISBN {
     String message() default "Formato ISBN inválido";
 
     Class<?>[] groups() default {};
-    Class<? extends Payload >[] payload() default  {};
+    Class<? extends Payload >[] payload() default {};
 }

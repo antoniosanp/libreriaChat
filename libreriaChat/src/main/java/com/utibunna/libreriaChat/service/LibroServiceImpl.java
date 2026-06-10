@@ -8,6 +8,7 @@ import com.utibunna.libreriaChat.model.Libro;
 import com.utibunna.libreriaChat.repository.EditorialRepository;
 import com.utibunna.libreriaChat.repository.GeneroRepository;
 import com.utibunna.libreriaChat.repository.LibroRepository;
+import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashSet;

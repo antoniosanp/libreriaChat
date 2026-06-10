@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import jakarta.validation.ConstraintViolationException;
 import java.net.URI;
 import java.time.Instant;
 import java.util.HashMap;
@@ -41,6 +42,27 @@ public class GlobalExceptionHandler {
         problemDetail.setProperty("erroresDetallados", errores);
         problemDetail.setProperty("timestamp", Instant.now());
 
+        return problemDetail;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ProblemDetail handleConstraintViolationException(ConstraintViolationException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Los datos enviados no son válidos");
+        problemDetail.setTitle("Error de Validación");
+        problemDetail.setType(URI.create("https://librotech.com/docs/errores/validacion"));
+
+        Map<String, String> errores = new HashMap<>();
+        ex.getConstraintViolations().forEach(violation -> {
+            String field = violation.getPropertyPath().toString();
+            int lastDot = field.lastIndexOf('.');
+            if (lastDot >= 0) {
+                field = field.substring(lastDot + 1);
+            }
+            errores.put(field, violation.getMessage());
+        });
+
+        problemDetail.setProperty("erroresDetallados", errores);
+        problemDetail.setProperty("timestamp", Instant.now());
         return problemDetail;
     }
 

@@ -1,11 +1,13 @@
 package com.utibunna.libreriaChat.controllerUI;
 
+import com.utibunna.libreriaChat.controller.LibroController;
 import com.utibunna.libreriaChat.libroDTO.LibroCreateDTO;
 import com.utibunna.libreriaChat.libroDTO.LibroDTO;
 import com.utibunna.libreriaChat.repository.EditorialRepository;
 import com.utibunna.libreriaChat.repository.GeneroRepository;
 import com.utibunna.libreriaChat.model.Libro;
 import com.utibunna.libreriaChat.service.LibroService;
+import com.utibunna.libreriaChat.libroDTO.LibroResponseDTO;
 import jakarta.validation.Valid;
 import java.util.Collections;
 import java.util.List;
@@ -21,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-//@Controller
+@Controller
 @RequestMapping("/ui/libros")
 public class LibroUIController {
 
@@ -29,10 +31,12 @@ public class LibroUIController {
     private final EditorialRepository editorialRepository;
     private final GeneroRepository generoRepository;
 
+
     public LibroUIController(
             LibroService libroService,
             EditorialRepository editorialRepository,
             GeneroRepository generoRepository
+
     ) {
         this.libroService = libroService;
         this.editorialRepository = editorialRepository;
@@ -57,8 +61,8 @@ public class LibroUIController {
         return "libros/formulario";
     }
 
-    //@PostMapping
-    public String crearLibro(@Valid @ModelAttribute("libroDTO") LibroCreateDTO libroDTO,
+    @PostMapping
+    public String crearLibro(@Valid @ModelAttribute("libroDTO") LibroDTO libroDTO,
                              BindingResult bindingResult,
                              Model model,
                              RedirectAttributes redirectAttributes) {
@@ -67,8 +71,18 @@ public class LibroUIController {
             return "libros/formulario";
         }
 
-        //Libro libro = libroService.crearLibro(libroDTO);
-        //redirectAttributes.addFlashAttribute("mensajeExito", "Libro creado con id " + libro.getId());
+        LibroCreateDTO libroCreateDTO = new  LibroCreateDTO(
+                libroDTO.getTitulo(),
+                libroDTO.getAutor(),
+                libroDTO.getIsbn(),
+                libroDTO.getFechaPublicacion(),
+                libroDTO.getPrecio(),
+                libroDTO.getEditorialId(),
+                libroDTO.getGeneroIds()
+        );
+
+        LibroResponseDTO libroCreado = libroService.crearLibro(libroCreateDTO);
+        redirectAttributes.addFlashAttribute("mensajeExito", "Libro creado con id " + libroCreado.id());
         return "redirect:/ui/libros";
     }
 

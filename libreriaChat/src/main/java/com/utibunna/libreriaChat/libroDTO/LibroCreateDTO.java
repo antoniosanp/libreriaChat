@@ -8,27 +8,29 @@ import java.util.Set;
 
 public record LibroCreateDTO(
 
-        @NotBlank(message = "no puede tar vacio")
-        @Size(min = 2, max = 255, message = "ponga algo, pero tampoco tanto")
+        @NotBlank(message = "loco, ponga algo")
+        @Size(min = 2, max = 255, message = "debes cumplir con minimo 2 caracteres maximo tin")
         String titulo,
-        @NotBlank(message = "ponga algo")
+
+        @NotBlank(message = "el campo autor es obligatorio")
         String autor,
 
-        @NotBlank(message = "ponga algo en el isbn")
+        @NotBlank
         @ValidISBN
         String isbn,
 
-        @NotNull(message = "ponga algo en la fecha")
-        @PastOrPresent(message = "si pa, cual es esa?")
+        @NotNull
+        @PastOrPresent(message = "oe, ve el futuro o qué?")
         LocalDate fechaPublicacion,
 
-        @NotNull(message = "gratis pues?")
-        @PositiveOrZero(message = "que valga alguito")
+        @NotNull
+        @Positive(message = "regalado pues?")
         Double precio,
 
-        @NotNull(message = "que haiga editorial")
+        @NotNull
+        @Positive
         Long editorialId,
 
-        @NotEmpty(message = "pa, ponele género a la vuelta")
+        @NotEmpty
         Set<Long> generosId
 ) {}

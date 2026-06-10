@@ -4,6 +4,7 @@ import com.utibunna.libreriaChat.libroDTO.*;
 import com.utibunna.libreriaChat.model.Libro;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
